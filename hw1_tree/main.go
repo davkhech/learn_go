@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"io"
-	"os"
 	"io/ioutil"
+	"os"
 	"strings"
 )
 
@@ -23,7 +23,7 @@ func filterFiles(allFiles []os.FileInfo, includeFiles bool) (ret []os.FileInfo) 
     return
 }
 
-func crateTree(root string, printFiles bool) string {
+func createTree(root string, printFiles bool) string {
 	files, err := ioutil.ReadDir(root)
 	if err != nil {
 		return ""
@@ -47,8 +47,8 @@ func crateTree(root string, printFiles bool) string {
 		if f.IsDir() {
 			builder.WriteString("\n")
 			
-			// Retreive directory's inner structure
-			ret := crateTree(root + "/" + f.Name(), printFiles)
+			// Retrieve directory's inner structure
+			ret := createTree(root + "/" + f.Name(), printFiles)
 			rows := strings.Split(ret, "\n")
 			rows = rows[:len(rows) - 1]
 			for _, row := range rows {
@@ -69,22 +69,23 @@ func crateTree(root string, printFiles bool) string {
 }
 
 func dirTree(output io.Writer, path string, printFiles bool) error {
-	result := crateTree(path, printFiles)
+	result := createTree(path, printFiles)
 	if result != "" {
-		fmt.Fprint(output, result)
+		_, _ = fmt.Fprint(output, result)
 		return nil
 	}
 	return fmt.Errorf("something went wrong")
 }
 
 func main() {
-	out := os.Stdout
 	if !(len(os.Args) == 2 || len(os.Args) == 3) {
 		panic("usage go run main.go . [-f]")
 	}
+
 	path := os.Args[1]
 	printFiles := len(os.Args) == 3 && os.Args[2] == "-f"
-	err := dirTree(out, path, printFiles)
+
+	err := dirTree(os.Stdout, path, printFiles)
 	if err != nil {
 		panic(err.Error())
 	}
